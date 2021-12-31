@@ -1,6 +1,9 @@
 # -*- coding : utf-8 -*- #
 
 __author__ = "Gallen_qiu"
+
+import random
+
 import requests,json,time
 from bs4 import BeautifulSoup
 from multiprocessing import Queue
@@ -57,27 +60,28 @@ class Xinalang():
             self.info.append(ninfo)
         except:
             print("其他错误")
-            print("其他错误")
             info = json.loads(ninfo)
             print(info["SECNAME"], info["year"])
 
     def scheduler(self):
         year_list=[2014,2015,2016,2017,2018]
 
-        with open("D:\python文件库\项目\Financal analysis\A股数据分析\stockCode.txt",encoding="utf8") as f:
+        with open("stockCode.txt",encoding="utf8") as f:
             lines=f.readlines()
 
-        for line in lines:
+        slice = random.sample(lines, 2)
+
+        for line in slice:
             info=json.loads(line)
             for year in year_list:
                 info["year"]=year
                 info_str=json.dumps(info)
-                # print(json.loads(info_str))
+                print(json.loads(info_str))
 
                 self.queue.put(info_str)
 
         pool=ThreadPoolExecutor(max_workers=8)
-        while self.queue.qsize()>0:
+        while not self.queue.empty():
             pool.submit(self.req, self.queue.get())
         pool.shutdown()
 
